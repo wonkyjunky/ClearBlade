@@ -23,7 +23,7 @@ function initCallback() {
  * @param done
  * @param task
  */
-function updateItem(done: boolean, task: string) {
+function updateItem(done: boolean, task: any) {
   let query = cb.Query().equalTo("task", task);
   if (done === false) {
     collection.update(
@@ -35,6 +35,7 @@ function updateItem(done: boolean, task: string) {
           return;
         }
         console.log("updated");
+        fetching();
       }
     );
   } else {
@@ -47,6 +48,7 @@ function updateItem(done: boolean, task: string) {
           return;
         }
         console.log("updated");
+        fetching();
       }
     );
   }
@@ -56,7 +58,7 @@ function updateItem(done: boolean, task: string) {
  * Delete selected item
  * @param task
  */
-function deleteItem(task: string) {
+function deleteItem(task: any) {
   let query = cb.Query().equalTo("task", task);
 
   collection.remove(query, async (err: boolean, response: any) => {
@@ -85,7 +87,6 @@ function addItem(task: any) {
     }
   );
 }
-
 /**
  * Fetching the collection data
  */
@@ -99,17 +100,35 @@ function fetching() {
     for (let i = 0; i < response.length; i++) {
       if (response[i].data.done === true) {
         $("#hello").append(
-          `<input type="checkbox" checked/> <span><del>${response[i].data.task}</del></span>  
-          <button type="button" >delete</button><br /><br />`
+          `<input type="checkbox" checked id="update${response[i].data.item_id}" 
+          task="${response[i].data.task}" done=${response[i].data.done} />
+          <span><del>${response[i].data.task}</del></span>
+          <button id="delete${response[i].data.item_id}" task="${response[i].data.task}">
+          delete</button><br /><br />`
         );
       } else {
         $("#hello").append(
-          `<input type="checkbox"/> <span>${response[i].data.task}</span>  
-          <button type="button">delete</button><br /><br />`
+          `<input type="checkbox" id="update${response[i].data.item_id}"
+          task="${response[i].data.task}" done=${response[i].data.done} />
+          <span>${response[i].data.task}</span>
+          <button id="delete${response[i].data.item_id}" task="${response[i].data.task}">
+          delete</button><br /><br />`
         );
       }
+      $(`#delete${response[i].data.item_id}`).on("click", function () {
+        deleteItem($(`#delete${response[i].data.item_id}`).attr("task"));
+      });
+      $(`#update${response[i].data.item_id}`).on("click", function () {
+        let done = false;
+        let task = $(`#update${response[i].data.item_id}`).attr("task");
+        if ($(`#update${response[i].data.item_id}`).attr("done") === "true") {
+          done = true;
+        }
+        updateItem(done, task);
+      });
     }
   });
+  return;
 }
 
 function App() {
@@ -127,7 +146,11 @@ function App() {
           id="addbtn"
           type="button"
           onClick={() => {
-            addItem($("#addInput").val());
+            if ($("#addInput").val() !== "") {
+              addItem($("#addInput").val());
+            } else {
+              alert("Input cannot be empty");
+            }
           }}
         >
           Add Item
