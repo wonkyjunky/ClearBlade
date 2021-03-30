@@ -15,7 +15,22 @@ cb.init({
 
 function initCallback() {
   var collection = cb.Collection(collectionID);
+
+  fetching(collection);
+}
+
+/**
+ * Fetching the collection data
+ * @param collection
+ */
+function fetching(collection: any) {
   var query = cb.Query();
+  collection.fetch(query, (err: boolean, response: any) => {
+    if (err) {
+      console.log("Error in Fetching");
+    }
+    console.log(response);
+  });
 }
 
 function App() {
