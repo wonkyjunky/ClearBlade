@@ -14,10 +14,25 @@ cb.init({
 });
 
 function initCallback() {
-  var collection = cb.Collection(collectionID);
+  let collection = cb.Collection(collectionID);
+}
 
-  // fetching(collection);
-  // addItem(collection);
+/**
+ * Delete selected item
+ * @param collection
+ * @param task
+ */
+function deleteItem(collection: any, task: string) {
+  let query = cb.Query().equalTo("task", "5");
+
+  collection.remove(query, async (err: boolean, response: any) => {
+    if (err) {
+      console.log("error in deleting item");
+      return;
+    }
+    await console.log("delete succeed");
+    fetching(collection);
+  });
 }
 
 /**
@@ -28,8 +43,12 @@ function initCallback() {
 function addItem(collection: any) {
   collection.create(
     { done: false, task: "5" },
-    (err: boolean, response: any) => {
-      console.log("succeed");
+    async (err: boolean, response: any) => {
+      if (err) {
+        console.log("error in adding item");
+      }
+      await console.log("adding succeed");
+      fetching(collection);
     }
   );
 }
@@ -39,17 +58,25 @@ function addItem(collection: any) {
  * @param collection
  */
 function fetching(collection: any) {
-  var query = cb.Query();
+  $("#hello").html("");
+  let query = cb.Query();
   collection.fetch(query, (err: boolean, response: any) => {
     if (err) {
       console.log("Error in Fetching");
     }
     console.log(response);
+    for (let i = 0; i < response.length; i++) {
+      $("#hello").append(`<span>${response[i].data.task}</span><br/>`);
+    }
   });
 }
 
 function App() {
-  return <div></div>;
+  return (
+    <div>
+      <span id="hello"></span>
+    </div>
+  );
 }
 
 export default App;
