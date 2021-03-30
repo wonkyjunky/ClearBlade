@@ -16,7 +16,22 @@ cb.init({
 function initCallback() {
   var collection = cb.Collection(collectionID);
 
-  fetching(collection);
+  // fetching(collection);
+  // addItem(collection);
+}
+
+/**
+ * adding item the the collection
+ * @param collection
+ */
+
+function addItem(collection: any) {
+  collection.create(
+    { done: false, task: "5" },
+    (err: boolean, response: any) => {
+      console.log("succeed");
+    }
+  );
 }
 
 /**
