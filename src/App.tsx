@@ -15,6 +15,42 @@ cb.init({
 
 function initCallback() {
   let collection = cb.Collection(collectionID);
+  // updateItem(collection, true, "walk");
+}
+
+/**
+ * update item propertiy done to false or true when checkbox clicked.
+ * @param collection
+ * @param done
+ * @param task
+ */
+function updateItem(collection: any, done: boolean, task: string) {
+  let query = cb.Query().equalTo("task", task);
+  if (done === false) {
+    collection.update(
+      query,
+      { done: true, task: task },
+      (err: boolean, response: any) => {
+        if (err) {
+          console.log("error in update");
+        }
+        console.log("updated");
+        fetching(collection);
+      }
+    );
+  } else {
+    collection.update(
+      query,
+      { done: false, task: task },
+      (err: boolean, response: any) => {
+        if (err) {
+          console.log("error in update");
+        }
+        console.log("updated");
+        fetching(collection);
+      }
+    );
+  }
 }
 
 /**
@@ -23,7 +59,7 @@ function initCallback() {
  * @param task
  */
 function deleteItem(collection: any, task: string) {
-  let query = cb.Query().equalTo("task", "5");
+  let query = cb.Query().equalTo("task", task);
 
   collection.remove(query, async (err: boolean, response: any) => {
     if (err) {
