@@ -12,19 +12,18 @@ cb.init({
   systemSecret: cbCredentials.systemSecret,
   callback: initCallback,
 });
+const collection = cb.Collection(collectionID);
 
 function initCallback() {
-  let collection = cb.Collection(collectionID);
-  // updateItem(collection, true, "walk");
+  fetching();
 }
 
 /**
  * update item propertiy done to false or true when checkbox clicked.
- * @param collection
  * @param done
  * @param task
  */
-function updateItem(collection: any, done: boolean, task: string) {
+function updateItem(done: boolean, task: string) {
   let query = cb.Query().equalTo("task", task);
   if (done === false) {
     collection.update(
@@ -33,9 +32,9 @@ function updateItem(collection: any, done: boolean, task: string) {
       (err: boolean, response: any) => {
         if (err) {
           console.log("error in update");
+          return;
         }
         console.log("updated");
-        fetching(collection);
       }
     );
   } else {
@@ -45,9 +44,9 @@ function updateItem(collection: any, done: boolean, task: string) {
       (err: boolean, response: any) => {
         if (err) {
           console.log("error in update");
+          return;
         }
         console.log("updated");
-        fetching(collection);
       }
     );
   }
@@ -55,10 +54,9 @@ function updateItem(collection: any, done: boolean, task: string) {
 
 /**
  * Delete selected item
- * @param collection
  * @param task
  */
-function deleteItem(collection: any, task: string) {
+function deleteItem(task: string) {
   let query = cb.Query().equalTo("task", task);
 
   collection.remove(query, async (err: boolean, response: any) => {
@@ -67,42 +65,49 @@ function deleteItem(collection: any, task: string) {
       return;
     }
     await console.log("delete succeed");
-    fetching(collection);
+    fetching();
   });
 }
 
 /**
  * adding item the the collection
- * @param collection
  */
 
-function addItem(collection: any) {
+function addItem(task: any) {
   collection.create(
-    { done: false, task: "5" },
+    { done: false, task: task },
     async (err: boolean, response: any) => {
       if (err) {
         console.log("error in adding item");
       }
       await console.log("adding succeed");
-      fetching(collection);
+      fetching();
     }
   );
 }
 
 /**
  * Fetching the collection data
- * @param collection
  */
-function fetching(collection: any) {
+function fetching() {
   $("#hello").html("");
   let query = cb.Query();
-  collection.fetch(query, (err: boolean, response: any) => {
+  collection.fetch(query, async (err: boolean, response: any) => {
     if (err) {
       console.log("Error in Fetching");
     }
-    console.log(response);
     for (let i = 0; i < response.length; i++) {
-      $("#hello").append(`<span>${response[i].data.task}</span><br/>`);
+      if (response[i].data.done === true) {
+        $("#hello").append(
+          `<input type="checkbox" checked/> <span><del>${response[i].data.task}</del></span>  
+          <button type="button" >delete</button><br /><br />`
+        );
+      } else {
+        $("#hello").append(
+          `<input type="checkbox"/> <span>${response[i].data.task}</span>  
+          <button type="button">delete</button><br /><br />`
+        );
+      }
     }
   });
 }
@@ -110,7 +115,24 @@ function fetching(collection: any) {
 function App() {
   return (
     <div>
+      <h1 style={{ backgroundColor: "skyblue" }}>Todo List</h1>
+      <h3>Welcome to to-do list.</h3>
+      <br />
       <span id="hello"></span>
+      <br /> <br />
+      <form>
+        {" "}
+        <input id="addInput" type="text"></input>{" "}
+        <button
+          id="addbtn"
+          type="button"
+          onClick={() => {
+            addItem($("#addInput").val());
+          }}
+        >
+          Add Item
+        </button>
+      </form>
     </div>
   );
 }
